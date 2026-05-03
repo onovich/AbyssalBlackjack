@@ -2,9 +2,9 @@
 
 ## 来自原版复核的潜在改进点
 
-- [ ] 将 [src/components/game/ShopScreen.jsx](src/components/game/ShopScreen.jsx) 中治疗按钮的 `hp >= 5` 改回基于 `MAX_HP` 的常量判断，消除硬编码维护风险。
-- [ ] 为 NPC 回合、Joker 投掷与结算推进补一组回归测试，重点覆盖高频连续操作下的状态时序。
-- [ ] 补一份人工试玩清单，专门验证以下边界链路：连续抽牌后进入 Joker、塞牌后立即结算、无牌可抽时 NPC 停牌、附魔后进入商店与下一层推进。
+- [x] 将 [src/components/game/ShopScreen.jsx](src/components/game/ShopScreen.jsx) 中治疗按钮的 `hp >= 5` 改回基于 `MAX_HP` 的常量判断，消除硬编码维护风险。
+- [x] 为 NPC 回合、Joker 投掷与结算推进补一组回归测试，重点覆盖高频连续操作下的状态时序。
+- [x] 补一份人工试玩清单，专门验证以下边界链路：连续抽牌后进入 Joker、塞牌后立即结算、无牌可抽时 NPC 停牌、附魔后进入商店与下一层推进。
 
 ## 后续工程改进
 

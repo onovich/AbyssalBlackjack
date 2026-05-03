@@ -64,5 +64,6 @@ npm run build
 ## 文档
 
 - 待办清单：[docs/TODO.md](docs/TODO.md)
+- 人工回归清单：[docs/manual-regression-checklist.md](docs/manual-regression-checklist.md)
 - 经验归档：[docs/lessons-learned.md](docs/lessons-learned.md)
 - 后续路线：[docs/next-steps.md](docs/next-steps.md)

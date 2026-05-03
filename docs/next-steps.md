@@ -6,7 +6,7 @@
 
 - 给 [src/game/domain/](../src/game/domain/) 增加单元测试，覆盖计分、发牌、结算与收益计算。
 - 给 [src/game/hooks/](../src/game/hooks/) 增加少量流程测试，验证 NPC/Joker/结算推进时序。
-- 建立一份固定的人工试玩回归清单，用于每次重构后快速复核。
+- 维护 [docs/manual-regression-checklist.md](../docs/manual-regression-checklist.md)，并在每次结构性改动后走一轮固定人工回归。
 
 ### 2. 工程质量
 
