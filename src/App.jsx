@@ -1,5 +1,5 @@
-import { GameShell } from './features/game/GameShell';
+import AbyssalBlackjack from './AbyssalBlackjack';
 
 export default function App() {
-  return <GameShell />;
+  return <AbyssalBlackjack />;
 }
