@@ -2,11 +2,20 @@ const COLOR_CLASS_MAP = {
   neutral: 'card--neutral',
   crimson: 'card--crimson',
   joker: 'card--joker',
+  scissor: 'card--scissor',
 };
 
 export function CardView({ card, compact = false, onClick, removable = false, faded = false }) {
   if (!card) {
     return <div className="card card--empty">空</div>;
+  }
+
+  if (card.hidden) {
+    return (
+      <button type="button" onClick={onClick} className={[ 'card', 'card--back', compact ? 'card--compact' : '' ].filter(Boolean).join(' ')}>
+        <span className="card__back-mark">ABYSS</span>
+      </button>
+    );
   }
 
   return (
@@ -19,6 +28,7 @@ export function CardView({ card, compact = false, onClick, removable = false, fa
         compact ? 'card--compact' : '',
         removable ? 'card--removable' : '',
         faded ? 'card--faded' : '',
+        card.isSliced ? 'card--sliced' : '',
       ]
         .filter(Boolean)
         .join(' ')}

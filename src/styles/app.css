@@ -112,6 +112,48 @@ button {
   backdrop-filter: blur(18px);
 }
 
+.duel-panel {
+  border-radius: 28px;
+  padding: 18px 18px 20px;
+  margin-bottom: 6px;
+}
+
+.duel-panel__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.duel-panel__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #b6c3df;
+}
+
+.duel-panel__score {
+  color: #8ea0c5;
+  font-size: 0.82rem;
+}
+
+.turn-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  background: rgba(49, 104, 255, 0.16);
+  border: 1px solid rgba(109, 150, 255, 0.2);
+}
+
+.npc-hand-row {
+  display: flex;
+  justify-content: center;
+  padding: 2px 12px 8px;
+}
+
 .intro-card {
   width: 100%;
   padding: 24px;
@@ -333,6 +375,12 @@ button {
   opacity: 0.72;
 }
 
+.card--sliced {
+  opacity: 0.18;
+  transform: rotate(-8deg) scale(0.96);
+  filter: grayscale(0.8);
+}
+
 .card--empty {
   color: #607191;
   border: 2px dashed rgba(105, 121, 153, 0.4);
@@ -343,6 +391,25 @@ button {
 
 .card--crimson {
   color: #b4345d;
+}
+
+.card--scissor {
+  color: #38506f;
+  background: linear-gradient(180deg, #f3f9ff, #dce8f6);
+}
+
+.card--back {
+  background: linear-gradient(180deg, #17263d, #0b1322);
+  border-color: rgba(112, 131, 169, 0.3);
+  color: #cad6ee;
+  align-items: center;
+  justify-content: center;
+}
+
+.card__back-mark {
+  letter-spacing: 0.2em;
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
 .card__rank {
@@ -403,6 +470,53 @@ button {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   padding-bottom: 8px;
+}
+
+.skill-strip {
+  display: grid;
+  grid-template-columns: 128px 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.skill-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.skill-button {
+  min-height: 88px;
+  border-radius: 20px;
+  border: 1px solid rgba(123, 145, 194, 0.18);
+  color: #ebf2ff;
+  cursor: pointer;
+  background: rgba(13, 24, 39, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.skill-button small {
+  color: #93a5c9;
+}
+
+.skill-button--active {
+  border-color: rgba(172, 115, 255, 0.38);
+  background: linear-gradient(180deg, rgba(84, 45, 171, 0.6), rgba(13, 24, 39, 0.95));
+}
+
+.skill-note {
+  border-radius: 20px;
+  border: 1px solid rgba(123, 145, 194, 0.18);
+  background: rgba(11, 20, 34, 0.88);
+  color: #aebbd8;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  line-height: 1.55;
 }
 
 .action-button,
@@ -810,6 +924,10 @@ button {
   .service-grid,
   .action-grid {
     gap: 10px;
+  }
+
+  .skill-strip {
+    grid-template-columns: 1fr;
   }
 
   .card {

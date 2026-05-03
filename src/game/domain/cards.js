@@ -5,6 +5,7 @@ import {
   INITIAL_SUIT_POOL,
   JOKER_SHOP_CHANCE,
   RANK_POOL,
+  SCISSOR_SHOP_CHANCE,
   SUITS,
 } from '../config';
 
@@ -30,7 +31,7 @@ export function rankToValues(rank) {
   return [Number.parseInt(rank, 10)];
 }
 
-function getCardDisplayRank(baseRank, values, isJoker = false) {
+export function getCardDisplayRank(baseRank, values, isJoker = false) {
   if (isJoker) {
     return values[0] ? `🃏${values[0]}` : '🃏?';
   }
@@ -62,6 +63,10 @@ export function createCard(suit, rank, overrides = {}) {
     displayRank: overrides.displayRank ?? getCardDisplayRank(baseRank, values, isJoker),
     isJoker,
     isResolvedJoker: overrides.isResolvedJoker ?? !isJoker,
+    isScissor: overrides.isScissor ?? false,
+    hidden: overrides.hidden ?? false,
+    isSliced: overrides.isSliced ?? false,
+    owner: overrides.owner ?? 'PLAYER',
     enchantments: overrides.enchantments ?? [],
   };
 }
@@ -77,6 +82,20 @@ export function createJokerCard() {
   });
 }
 
+export function createScissorCard(owner = 'PLAYER') {
+  const suit = SUITS[Math.floor(Math.random() * SUITS.length)].suit;
+
+  return createCard(suit, '✂', {
+    baseRank: '✂',
+    color: 'scissor',
+    values: [0],
+    baseValues: [0],
+    displayRank: '✂',
+    isScissor: true,
+    owner,
+  });
+}
+
 export function shuffleCards(cards, random = Math.random) {
   const nextCards = [...cards];
 
@@ -88,8 +107,20 @@ export function shuffleCards(cards, random = Math.random) {
   return nextCards;
 }
 
-export function generateInitialDeck(random = Math.random) {
-  const cards = INITIAL_SUIT_POOL.flatMap((suit) => INITIAL_RANK_POOL.map((rank) => createCard(suit, rank)));
+export function generateInitialDeck(random = Math.random, owner = 'PLAYER') {
+  const cards = INITIAL_SUIT_POOL.flatMap((suit) => INITIAL_RANK_POOL.map((rank) => createCard(suit, rank, { owner })));
+
+  return shuffleCards(cards, random);
+}
+
+export function generateNpcDeck(stage, random = Math.random) {
+  const poolLimit = Math.min(RANK_POOL.length, 6 + stage);
+  const pool = RANK_POOL.slice(0, poolLimit);
+  const cards = Array.from({ length: 10 }, () => {
+    const suit = SUITS[Math.floor(random() * SUITS.length)].suit;
+    const rank = pool[Math.floor(random() * pool.length)];
+    return createCard(suit, rank, { owner: 'NPC' });
+  });
 
   return shuffleCards(cards, random);
 }
@@ -97,12 +128,16 @@ export function generateInitialDeck(random = Math.random) {
 export function generateShopOffers(random = Math.random, count = 3) {
   return Array.from({ length: count }, () => {
     if (random() < JOKER_SHOP_CHANCE) {
-      return createJokerCard();
+      return { ...createJokerCard(), owner: 'PLAYER' };
+    }
+
+    if (random() < SCISSOR_SHOP_CHANCE) {
+      return createScissorCard('PLAYER');
     }
 
     const suit = SUITS[Math.floor(random() * SUITS.length)].suit;
     const rank = RANK_POOL[Math.floor(random() * RANK_POOL.length)];
-    return createCard(suit, rank);
+    return createCard(suit, rank, { owner: 'PLAYER' });
   });
 }
 
@@ -113,7 +148,7 @@ function cartesianSums(valueGroups) {
   );
 }
 
-export function calculateScoreData(hand) {
+export function calculateScoreData(hand, calculateAll = false) {
   if (hand.length === 0) {
     return {
       score: 0,
@@ -123,7 +158,16 @@ export function calculateScoreData(hand) {
     };
   }
 
-  const visibleCards = hand.filter((card) => !card.hidden);
+  const visibleCards = hand.filter((card) => !card.isSliced && (calculateAll || !card.hidden));
+  if (visibleCards.length === 0) {
+    return {
+      score: 0,
+      isBust: false,
+      isFlush: false,
+      allTotals: [0],
+    };
+  }
+
   const allSums = cartesianSums(visibleCards.map((card) => card.values));
   const flushSuit = visibleCards[0]?.suit;
   const isFlush =
@@ -189,6 +233,7 @@ export function resolveJokerCard(card, rolledValue) {
     ...card,
     values: [rolledValue],
     isResolvedJoker: true,
+    rank: getCardDisplayRank(card.baseRank, [rolledValue], true),
     displayRank: getCardDisplayRank(card.baseRank, [rolledValue], true),
   };
 }

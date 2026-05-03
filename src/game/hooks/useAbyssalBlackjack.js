@@ -4,16 +4,22 @@ import {
   applyEnchant,
   beginRun,
   buyCard,
+  cleanupSlicedCards,
   createInitialState,
+  executeRedraw,
+  executeStuff,
   finishResolve,
   goToNextStage,
   heal,
   hit,
+  npcTakeTurn,
   removeCard,
   rollJoker,
   selectEnchant,
   skipEnchant,
   stand,
+  toggleStuffMode,
+  toggleRedrawMode,
   toggleRemoveMode,
 } from '../domain/engine';
 
@@ -27,10 +33,22 @@ function reducer(state, action) {
       return state.gameState === 'BATTLE' && !state.rollingJoker ? stand(state) : state;
     case 'FINISH_RESOLVE':
       return state.gameState === 'RESOLVE' ? finishResolve(state) : state;
+    case 'NPC_TAKE_TURN':
+      return state.gameState === 'BATTLE' && state.turn === 'NPC' ? npcTakeTurn(state) : state;
+    case 'CLEANUP_SLICED':
+      return cleanupSlicedCards(state);
     case 'ROLL_JOKER':
       return state.gameState === 'BATTLE' && state.rollingJoker ? rollJoker(state) : state;
     case 'ACCEPT_JOKER':
       return state.gameState === 'BATTLE' && state.rollingJoker ? acceptJoker(state) : state;
+    case 'TOGGLE_REDRAW_MODE':
+      return toggleRedrawMode(state);
+    case 'EXECUTE_REDRAW':
+      return executeRedraw(state, action.cardId);
+    case 'TOGGLE_STUFF_MODE':
+      return toggleStuffMode(state);
+    case 'EXECUTE_STUFF':
+      return executeStuff(state, action.cardId);
     case 'SELECT_ENCHANT':
       return selectEnchant(state, action.enchantmentId);
     case 'APPLY_ENCHANT':
@@ -69,6 +87,30 @@ export function useAbyssalBlackjack() {
     return () => window.clearTimeout(timer);
   }, [state.gameState, state.resolveDelayMs]);
 
+  useEffect(() => {
+    if (state.gameState !== 'BATTLE' || state.turn !== 'NPC' || state.rollingJoker) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      dispatch({ type: 'NPC_TAKE_TURN' });
+    }, state.npcTurnDelayMs);
+
+    return () => window.clearTimeout(timer);
+  }, [state.gameState, state.turn, state.rollingJoker, state.npcTurnDelayMs, state.npcHand]);
+
+  useEffect(() => {
+    if (!state.pendingSliceCleanup) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      dispatch({ type: 'CLEANUP_SLICED' });
+    }, state.sliceDelayMs);
+
+    return () => window.clearTimeout(timer);
+  }, [state.pendingSliceCleanup, state.sliceDelayMs]);
+
   return {
     state,
     actions: {
@@ -77,6 +119,10 @@ export function useAbyssalBlackjack() {
       stand: () => dispatch({ type: 'STAND' }),
       rollJoker: () => dispatch({ type: 'ROLL_JOKER' }),
       acceptJoker: () => dispatch({ type: 'ACCEPT_JOKER' }),
+      toggleRedrawMode: () => dispatch({ type: 'TOGGLE_REDRAW_MODE' }),
+      executeRedraw: (cardId) => dispatch({ type: 'EXECUTE_REDRAW', cardId }),
+      toggleStuffMode: () => dispatch({ type: 'TOGGLE_STUFF_MODE' }),
+      executeStuff: (cardId) => dispatch({ type: 'EXECUTE_STUFF', cardId }),
       selectEnchant: (enchantmentId) => dispatch({ type: 'SELECT_ENCHANT', enchantmentId }),
       applyEnchant: (cardId, location) => dispatch({ type: 'APPLY_ENCHANT', cardId, location }),
       skipEnchant: () => dispatch({ type: 'SKIP_ENCHANT' }),

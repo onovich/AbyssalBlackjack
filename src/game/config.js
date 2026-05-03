@@ -8,6 +8,12 @@ export const JOKER_ROLL_DELAY_MS = 180;
 export const ENCHANT_OPTION_COUNT = 3;
 export const JOKER_SHOP_CHANCE = 0.18;
 export const ENCHANT_BONUS_POOL = [2, 3, 4, 5, 6];
+export const SCISSOR_SHOP_CHANCE = 0.12;
+export const NPC_TURN_DELAY_MS = 900;
+export const SLICE_DELAY_MS = 600;
+export const MAX_SKILL_CHARGES = 5;
+export const INITIAL_REDRAW_CHARGES = 2;
+export const INITIAL_STUFF_CHARGES = 1;
 
 export const SUITS = [
   { suit: '♠', color: 'neutral' },

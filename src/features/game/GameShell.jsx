@@ -13,7 +13,17 @@ export function GameShell() {
   let content = <StartScreen onStart={actions.startGame} />;
 
   if (state.gameState === 'BATTLE' || state.gameState === 'RESOLVE') {
-    content = <BattleScreen state={state} onHit={actions.hit} onStand={actions.stand} />;
+    content = (
+      <BattleScreen
+        state={state}
+        onHit={actions.hit}
+        onStand={actions.stand}
+        onToggleRedraw={actions.toggleRedrawMode}
+        onExecuteRedraw={actions.executeRedraw}
+        onToggleStuff={actions.toggleStuffMode}
+        onExecuteStuff={actions.executeStuff}
+      />
+    );
   } else if (state.gameState === 'ENCHANT') {
     content = (
       <EnchantScreen

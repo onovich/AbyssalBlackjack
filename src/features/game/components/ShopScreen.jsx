@@ -76,27 +76,27 @@ export function ShopScreen({ state, onBuyCard, onHeal, onToggleRemoveMode, onRem
 
         <div className="shop-section">
           <div className="shop-section__header-row">
-            <h2 className="shop-section__title">你的牌库 ({state.deck.length + state.discard.length} 张)</h2>
+            <h2 className="shop-section__title">你的牌库 ({state.pDeck.length + state.pDiscard.length} 张)</h2>
             {state.isRemoving ? <span className="warning-tag">点击卡牌移除</span> : null}
           </div>
           <div className="deck-grid">
-            {state.deck.map((card) => (
+            {state.pDeck.map((card) => (
               <CardView
                 key={card.id}
                 card={card}
                 compact
                 removable={state.isRemoving}
-                onClick={() => onRemoveCard(card.id, 'deck')}
+                onClick={() => onRemoveCard(card.id, 'pDeck')}
               />
             ))}
-            {state.discard.map((card) => (
+            {state.pDiscard.map((card) => (
               <CardView
                 key={card.id}
                 card={card}
                 compact
                 faded
                 removable={state.isRemoving}
-                onClick={() => onRemoveCard(card.id, 'discard')}
+                onClick={() => onRemoveCard(card.id, 'pDiscard')}
               />
             ))}
           </div>

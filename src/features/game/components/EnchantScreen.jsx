@@ -38,23 +38,23 @@ export function EnchantScreen({ state, onSelectEnchant, onApplyEnchant, onSkip }
             {!state.selectedEnchantId ? <span className="warning-tag">先选一个附魔</span> : null}
           </div>
           <div className="deck-grid">
-            {state.deck.map((card) => (
+            {state.pDeck.map((card) => (
               <CardView
                 key={card.id}
                 card={card}
                 compact
                 removable={Boolean(state.selectedEnchantId) && canEnchantCard(card)}
-                onClick={() => onApplyEnchant(card.id, 'deck')}
+                onClick={() => onApplyEnchant(card.id, 'pDeck')}
               />
             ))}
-            {state.discard.map((card) => (
+            {state.pDiscard.map((card) => (
               <CardView
                 key={card.id}
                 card={card}
                 compact
                 faded
                 removable={Boolean(state.selectedEnchantId) && canEnchantCard(card)}
-                onClick={() => onApplyEnchant(card.id, 'discard')}
+                onClick={() => onApplyEnchant(card.id, 'pDiscard')}
               />
             ))}
           </div>

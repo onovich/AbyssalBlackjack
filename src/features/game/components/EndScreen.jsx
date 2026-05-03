@@ -29,7 +29,7 @@ export function EndScreen({ state, onRestart }) {
         </div>
         <div className="result-row">
           <span>牌库厚度</span>
-          <strong>{state.deck.length + state.discard.length + state.hand.length} 张</strong>
+          <strong>{state.pDeck.length + state.pDiscard.length + state.hand.length} 张</strong>
         </div>
       </div>
 
