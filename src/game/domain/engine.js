@@ -100,13 +100,13 @@ export function resolveBattle(state, { reason }) {
   let tone = 'neutral';
 
   if (isBust) {
-    message = `爆牌了，点数 ${score}`;
+    message = `爆牌了！点数 ${score}`;
     tone = 'danger';
   } else if (won) {
-    message = isBlackjack ? '黑杰克，完美通过' : `胜利，${score} 点压过目标 ${target}`;
+    message = isBlackjack ? `黑杰克！完美通过` : `胜利！${score} 点 ≥ 目标 ${target}`;
     tone = 'success';
   } else {
-    message = `失败，${score} 点低于目标 ${target}`;
+    message = `失败！${score} 点 < 目标 ${target}`;
     tone = 'danger';
   }
 
