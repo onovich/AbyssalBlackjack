@@ -4,6 +4,10 @@ export const SHOP_CARD_COST = 3;
 export const REMOVE_CARD_COST = 4;
 export const HEAL_COST = 5;
 export const RESOLVE_DELAY_MS = 1600;
+export const JOKER_ROLL_DELAY_MS = 180;
+export const ENCHANT_OPTION_COUNT = 3;
+export const JOKER_SHOP_CHANCE = 0.18;
+export const ENCHANT_BONUS_POOL = [2, 3, 4, 5, 6];
 
 export const SUITS = [
   { suit: '♠', color: 'neutral' },

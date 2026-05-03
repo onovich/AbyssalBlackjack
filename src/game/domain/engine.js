@@ -1,12 +1,24 @@
 import {
+  ENCHANT_OPTION_COUNT,
   HEAL_COST,
+  JOKER_ROLL_DELAY_MS,
   MAX_HP,
   REMOVE_CARD_COST,
   RESOLVE_DELAY_MS,
   SHOP_CARD_COST,
   TARGETS,
 } from '../config';
-import { calculateScore, generateInitialDeck, generateShopOffers, shuffleCards } from './cards';
+import {
+  applyEnchantToCard,
+  calculateScoreData,
+  canEnchantCard,
+  generateEnchantOptions,
+  generateInitialDeck,
+  generateShopOffers,
+  resolveJokerCard,
+  shuffleCards,
+  updateCardInCollection,
+} from './cards';
 
 export function createInitialState(random = Math.random) {
   return {
@@ -19,10 +31,41 @@ export function createInitialState(random = Math.random) {
     coins: 0,
     stage: 0,
     shopOffers: [],
+    enchantOptions: [],
+    selectedEnchantId: null,
     isRemoving: false,
     battleMessage: { text: '', tone: 'neutral' },
     pendingTransition: null,
+    rollingJoker: null,
+    jokerDiceCount: 0,
+    jokerRollValue: null,
     resolveDelayMs: RESOLVE_DELAY_MS,
+    jokerRollDelayMs: JOKER_ROLL_DELAY_MS,
+  };
+}
+
+function getNextPendingJoker(hand) {
+  return hand.find((card) => card.isJoker && !card.isResolvedJoker) ?? null;
+}
+
+function enterJokerState(state, card) {
+  return {
+    ...state,
+    rollingJoker: { cardId: card.id },
+    jokerDiceCount: 0,
+    jokerRollValue: null,
+    battleMessage: { text: '小丑牌浮出，先掷骰决定它的点数', tone: 'neutral' },
+  };
+}
+
+function openEnchantPhase(state) {
+  return {
+    ...state,
+    gameState: 'ENCHANT',
+    hand: [],
+    enchantOptions: generateEnchantOptions(state.random).slice(0, ENCHANT_OPTION_COUNT),
+    selectedEnchantId: null,
+    shopOffers: [],
   };
 }
 
@@ -78,9 +121,17 @@ export function startStage(state) {
     battleMessage: { text: '', tone: 'neutral' },
     pendingTransition: null,
     isRemoving: false,
+    rollingJoker: null,
+    jokerDiceCount: 0,
+    jokerRollValue: null,
   };
 
-  if (calculateScore(nextState.hand) === 21) {
+  const pendingJoker = getNextPendingJoker(nextState.hand);
+  if (pendingJoker) {
+    return enterJokerState(nextState, pendingJoker);
+  }
+
+  if (calculateScoreData(nextState.hand).score === 21) {
     return resolveBattle(nextState, { reason: 'BLACKJACK' });
   }
 
@@ -88,9 +139,10 @@ export function startStage(state) {
 }
 
 export function resolveBattle(state, { reason }) {
-  const score = calculateScore(state.hand);
+  const scoreData = calculateScoreData(state.hand);
+  const score = scoreData.score;
   const target = TARGETS[state.stage];
-  const isBust = reason === 'BUST';
+  const isBust = reason === 'BUST' || scoreData.isBust;
   const isBlackjack = reason === 'BLACKJACK';
   const won = !isBust && score >= target;
   const hpLoss = won ? 0 : 1;
@@ -132,6 +184,9 @@ export function resolveBattle(state, { reason }) {
     battleMessage: { text: message, tone },
     pendingTransition,
     isRemoving: false,
+    rollingJoker: null,
+    jokerDiceCount: 0,
+    jokerRollValue: null,
   };
 }
 
@@ -154,14 +209,11 @@ export function finishResolve(state) {
     };
   }
 
-  return {
+  return openEnchantPhase({
     ...state,
-    gameState: 'SHOP',
-    hand: [],
-    shopOffers: generateShopOffers(state.random),
     pendingTransition: null,
     isRemoving: false,
-  };
+  });
 }
 
 export function hit(state) {
@@ -171,9 +223,15 @@ export function hit(state) {
     ...drawResult,
     hand: drawResult.hand,
   };
-  const score = calculateScore(nextState.hand);
+  const pendingJoker = getNextPendingJoker(nextState.hand);
+  if (pendingJoker) {
+    return enterJokerState(nextState, pendingJoker);
+  }
 
-  if (score > 21) {
+  const scoreData = calculateScoreData(nextState.hand);
+  const score = scoreData.score;
+
+  if (scoreData.isBust) {
     return resolveBattle(nextState, { reason: 'BUST' });
   }
 
@@ -186,6 +244,49 @@ export function hit(state) {
 
 export function stand(state) {
   return resolveBattle(state, { reason: 'STAND' });
+}
+
+export function rollJoker(state) {
+  if (!state.rollingJoker) {
+    return state;
+  }
+
+  const rolledValue = Math.floor(state.random() * 6) + 1;
+
+  return {
+    ...state,
+    hand: updateCardInCollection(state.hand, state.rollingJoker.cardId, (card) => resolveJokerCard(card, rolledValue)),
+    jokerDiceCount: state.jokerDiceCount + 1,
+    jokerRollValue: rolledValue,
+  };
+}
+
+export function acceptJoker(state) {
+  if (!state.rollingJoker || !state.jokerRollValue) {
+    return state;
+  }
+
+  const nextState = {
+    ...state,
+    rollingJoker: null,
+    battleMessage: { text: `小丑牌定格为 ${state.jokerRollValue} 点`, tone: 'neutral' },
+  };
+  const nextPendingJoker = getNextPendingJoker(nextState.hand);
+
+  if (nextPendingJoker) {
+    return enterJokerState(nextState, nextPendingJoker);
+  }
+
+  const scoreData = calculateScoreData(nextState.hand);
+  if (scoreData.isBust) {
+    return resolveBattle(nextState, { reason: 'BUST' });
+  }
+
+  if (scoreData.score === 21) {
+    return resolveBattle(nextState, { reason: 'BLACKJACK' });
+  }
+
+  return nextState;
 }
 
 export function buyCard(state, offerIndex) {
@@ -262,4 +363,60 @@ export function goToNextStage(state) {
     isRemoving: false,
     battleMessage: { text: '', tone: 'neutral' },
   });
+}
+
+export function selectEnchant(state, enchantmentId) {
+  if (state.gameState !== 'ENCHANT') {
+    return state;
+  }
+
+  return {
+    ...state,
+    selectedEnchantId: enchantmentId,
+  };
+}
+
+export function applyEnchant(state, cardId, location) {
+  if (state.gameState !== 'ENCHANT' || !state.selectedEnchantId) {
+    return state;
+  }
+
+  const enchantment = state.enchantOptions.find((option) => option.id === state.selectedEnchantId);
+  if (!enchantment) {
+    return state;
+  }
+
+  if (location !== 'deck' && location !== 'discard') {
+    return state;
+  }
+
+  const source = location === 'deck' ? state.deck : state.discard;
+  const targetCard = source.find((card) => card.id === cardId);
+  if (!targetCard || !canEnchantCard(targetCard)) {
+    return state;
+  }
+
+  return {
+    ...state,
+    [location]: updateCardInCollection(source, cardId, (card) => applyEnchantToCard(card, enchantment)),
+    selectedEnchantId: null,
+    enchantOptions: [],
+    gameState: 'SHOP',
+    shopOffers: generateShopOffers(state.random),
+    battleMessage: { text: `附魔完成：${targetCard.baseRank} 获得 +${enchantment.bonus}`, tone: 'success' },
+  };
+}
+
+export function skipEnchant(state) {
+  if (state.gameState !== 'ENCHANT') {
+    return state;
+  }
+
+  return {
+    ...state,
+    gameState: 'SHOP',
+    selectedEnchantId: null,
+    enchantOptions: [],
+    shopOffers: generateShopOffers(state.random),
+  };
 }

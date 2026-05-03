@@ -1,6 +1,6 @@
 import { PlusCircle, ShieldAlert } from 'lucide-react';
 import { TARGETS } from '../../../game/config';
-import { calculateScore } from '../../../game/domain/cards';
+import { calculateScoreData } from '../../../game/domain/cards';
 import { StatBar } from './StatBar';
 import { CardView } from './CardView';
 
@@ -11,7 +11,8 @@ const messageToneClassMap = {
 };
 
 export function BattleScreen({ state, onHit, onStand }) {
-  const score = calculateScore(state.hand);
+  const scoreData = calculateScoreData(state.hand);
+  const score = scoreData.score;
   const currentTarget = TARGETS[state.stage];
 
   return (
@@ -35,7 +36,11 @@ export function BattleScreen({ state, onHit, onStand }) {
       </div>
 
       <div className="hand-area">
-        <div className="hand-area__header">你的手牌 ({score})</div>
+        <div className="hand-area__header">
+          你的手牌 ({score})
+          {scoreData.isFlush ? <span className="hand-badge">同花修正</span> : null}
+          {state.rollingJoker ? <span className="hand-badge hand-badge--warning">小丑结算中</span> : null}
+        </div>
         <div className="hand-fan">
           {state.hand.map((card, index) => (
             <div
@@ -60,7 +65,7 @@ export function BattleScreen({ state, onHit, onStand }) {
           type="button"
           className="action-button action-button--secondary"
           onClick={onHit}
-          disabled={state.gameState !== 'BATTLE'}
+          disabled={state.gameState !== 'BATTLE' || Boolean(state.rollingJoker)}
         >
           <PlusCircle size={22} />
           <span>拿牌</span>
@@ -70,7 +75,7 @@ export function BattleScreen({ state, onHit, onStand }) {
           type="button"
           className="action-button action-button--primary"
           onClick={onStand}
-          disabled={state.gameState !== 'BATTLE'}
+          disabled={state.gameState !== 'BATTLE' || Boolean(state.rollingJoker)}
         >
           <ShieldAlert size={22} />
           <span>停牌</span>

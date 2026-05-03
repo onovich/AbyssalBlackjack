@@ -1,7 +1,9 @@
 import { Sparkles } from 'lucide-react';
 import { useAbyssalBlackjack } from '../../game/hooks/useAbyssalBlackjack';
 import { BattleScreen } from './components/BattleScreen';
+import { EnchantScreen } from './components/EnchantScreen';
 import { EndScreen } from './components/EndScreen';
+import { JokerOverlay } from './components/JokerOverlay';
 import { ShopScreen } from './components/ShopScreen';
 import { StartScreen } from './components/StartScreen';
 
@@ -12,6 +14,15 @@ export function GameShell() {
 
   if (state.gameState === 'BATTLE' || state.gameState === 'RESOLVE') {
     content = <BattleScreen state={state} onHit={actions.hit} onStand={actions.stand} />;
+  } else if (state.gameState === 'ENCHANT') {
+    content = (
+      <EnchantScreen
+        state={state}
+        onSelectEnchant={actions.selectEnchant}
+        onApplyEnchant={actions.applyEnchant}
+        onSkip={actions.skipEnchant}
+      />
+    );
   } else if (state.gameState === 'SHOP') {
     content = (
       <ShopScreen
@@ -41,6 +52,7 @@ export function GameShell() {
         </header>
         {content}
       </div>
+      <JokerOverlay state={state} onRoll={actions.rollJoker} onAccept={actions.acceptJoker} />
     </main>
   );
 }

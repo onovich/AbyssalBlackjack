@@ -1,4 +1,4 @@
-import { ArrowRight, Coins, Heart, ShoppingCart, Trash2 } from 'lucide-react';
+import { ArrowRight, Coins, Heart, ShoppingCart, Trash2, WandSparkles } from 'lucide-react';
 import { HEAL_COST, REMOVE_CARD_COST, SHOP_CARD_COST } from '../../../game/config';
 import { StatBar } from './StatBar';
 import { CardView } from './CardView';
@@ -12,6 +12,13 @@ export function ShopScreen({ state, onBuyCard, onHeal, onToggleRemoveMode, onRem
         <ShoppingCart size={18} />
         <span>局间商店</span>
       </div>
+
+      {state.battleMessage.text ? (
+        <div className="inline-notice inline-notice--success">
+          <WandSparkles size={16} />
+          <span>{state.battleMessage.text}</span>
+        </div>
+      ) : null}
 
       <div className="shop-body">
         <div className="shop-section">
