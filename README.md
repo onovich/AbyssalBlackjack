@@ -6,7 +6,7 @@ A single-player blackjack roguelike built around deck manipulation, jokers, and 
 
 ![AbyssalBlackjack cover](docs/cover.png)
 
-**[Live version](https://blog.onovich.com/AbyssalBlackjack/)**
+**[Live version](https://game.onovich.com/AbyssalBlackjack/)**
 
 ## What it includes
 
