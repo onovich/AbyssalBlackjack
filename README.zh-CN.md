@@ -6,7 +6,7 @@
 
 ![AbyssalBlackjack 封面](docs/cover.png)
 
-**[在线体验](https://blog.onovich.com/AbyssalBlackjack/)**
+**[在线体验](https://game.onovich.com/AbyssalBlackjack/)**
 
 ## 项目包含什么
 
